@@ -34,31 +34,28 @@ class TestDemo:
         # 添加断言【断言的依据是代码执行的结果，本例就是判断当toast里的值：账号不存在】
         assert self.page.initMyselfPage.is_toast_exist(arg[2])
 
-    # 2 不填写账号登录测试
-    @pytest.mark.skip("跳过测试")
-    def test_login_no_num(self):
-        # 进入首页 点击我的按钮
-        self.page.initIndexPage.click_myself()
-        # 进入登录注册入口页，点击入口按钮
-        self.page.initMyselfPage.click_login_reg()
-        # 输入空账号
-        self.page.initMyselfPage.input_number( "" )
-        # 输入密码
-        self.page.initMyselfPage.input_pwd("123456")
-        # 获取按登录按钮的状态是否为可点击,并执行 【断言的作用是判断当前用例是否通过】
-        assert not self.page.initMyselfPage.get_enter_status()
+    # 2 将空账号和空密码合在一个用例当中
+    @pytest.mark.parametrize( "userInfo",getData("test_login_miss_info") )
+    def test_login_miss_info(self,userInfo):
+        print( userInfo,'-----',type(userInfo) )
+        # 获取用户输入的账号和密码
+        user_number = userInfo[0]
+        user_pwd = userInfo[1]
 
-    # 3 不填写密码登录测试
-    def test_login_no_pwd(self):
-        # 进入首页，点击我的
+        # 点击我的按钮
         self.page.initIndexPage.click_myself()
-        # 进入登录注册界面
+
+        time.sleep(2)  #界面跳过，等待一会
+
+        # 点击登录注册
         self.page.initMyselfPage.click_login_reg()
-        # 输入账号
-        self.page.initMyselfPage.input_number("18513891234")
-        # 输入空密码
-        self.page.initMyselfPage.input_pwd("")
-        # 判断状态，添加断言
+
+        # 输入空的账号和密码
+        self.page.initMyselfPage.input_number(user_number)
+        # 输入合理的密码
+        self.page.initMyselfPage.input_pwd(user_pwd)
+
+        # 断言登录按钮的状态
         assert not self.page.initMyselfPage.get_enter_status()
 
     # 4 显示密码操作自动化

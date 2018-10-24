@@ -8,3 +8,10 @@ test_login_num_unexist:
     num: 18513891234
     pwd: 123456
     tost_txt: "账号不存在!"
+test_login_miss_info:
+  test_login_miss_info_1:
+    num: ""
+    pwd: abcedf
+  test_login_miss_info_2:
+    num: 18513891234
+    pwd: ""

@@ -1,0 +1,10 @@
+# 将 myself 模型中的所有数据都分类的存在此文件当中
+test_login_num_unexist:
+  test_login_num_unexist_1:
+    num: 18513891234
+    pwd: "abcdef"
+    tost_txt: "账号不存在!"
+  test_login_num_unexist_2:
+    num: 18513891234
+    pwd: 123456
+    tost_txt: "账号不存在!"

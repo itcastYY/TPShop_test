@@ -3,14 +3,14 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 
 
-class BaseAction:
+class Baseaction:
 
-    def __init__(self,abc):
-        self.driver = abc
+    def __init__(self,driver):
+        self.driver = driver
 
     # 自定义一个元素查找方法
-    def find_element(self, feature):
-        #feature = By.XPATH,"//*[@text='显示']"
+    def find_element(self,feature,timeout=5,poll=1.0):
+        # feature = By.XPATH,"//*[@text='显示']"
         """
         依据用户传入的元素信息特征，然后返回当前用户想要查找元素
         :param feature: 元组类型，包含用户希望的查找方式，及该方式对应的值
@@ -18,12 +18,12 @@ class BaseAction:
         """
         by = feature[0]
         value = feature[1]
-        wait = WebDriverWait(self.driver, 5, 1)
         if by == By.XPATH:
-            #print( "说明了用户想要使用 xpath 路径的方式来获取元素" )
-            return wait.until(lambda x: x.find_element(by, self.make_xpath(value)))
-        else:
-            return wait.until(lambda x: x.find_element(feature[0], feature[1]))
+            # print( "说明了用户想要使用 xpath 路径的方式来获取元素" )
+            value = self.make_xpath(value)
+        # print( value,'-----' )
+        wait = WebDriverWait(self.driver, timeout, poll)
+        return wait.until(lambda x: x.find_element(by, value))
 
     def find_elements(self,feature):
         wait = WebDriverWait(self.driver, 5, 1)
@@ -87,3 +87,70 @@ class BaseAction:
             print("请按规则使用")
 
         return res_path
+
+    # 定义二个滑屏操作 ，上滑和左滑
+    def swipe_up(self):
+        w = self.getDeviceSize()[0]
+        h = self.getDeviceSize()[1]
+        start_x = w * 0.5
+        start_y = h * 0.9
+        end_x = w * 0.5
+        end_y = h * 0.4
+        self.driver.swipe(start_x, start_y, end_x, end_y)
+
+    def swipe_left(self):
+        # 使用 appium 里的swipe() 方法,先定义起点坐标和终点坐标
+        w = self.getDeviceSize()[0]
+        h = self.getDeviceSize()[1]
+        start_x = w*0.9
+        start_y = h*0.5
+        end_x = w*0.3
+        end_y = h*0.5
+        self.driver.swipe( start_x,start_y,end_x,end_y )
+
+    # 定义一个获取设备分辨率的方法
+    def getDeviceSize(self):
+        """
+        获取当前手机设备的屏幕分辨率 将它们以元素的形式返回
+        :return: 返回一个元组，内部包含的是屏幕的宽高
+        """
+        w = self.driver.get_window_size()["width"]
+        h = self.driver.get_window_size()["height"]
+        return w,h
+
+    # 获取某个 toast 里的内容
+    def get_toast_txt(self, message):
+        """
+        依据用户传入的文字信息，查找到对应的 toast 然后返回它里面的内容
+        :param message: 用来查找 toast 的内容
+        :return:返回被查找到的 toast 的元素内容
+        """
+        # 依据 message 来查询某个toast ，然后返回这个 toast 里的内容
+        message = "//*[contains(@text,'%s')]"%message
+        ele = self.find_element(feature=(By.XPATH,message),timeout=5,poll=0.1)
+        return ele.get_attribute("text")
+
+    # 定义一个函数 依据用户传入的内容来判断目标 toast 是否存在
+    def is_toast_exist(self,message):
+        try:
+            self.get_toast_txt(message)
+        except Exception:
+            return False
+        else:
+            return True
+
+    # 定义一个函数 返回当前按钮状态
+    def get_btn_status(self,feature):
+        """
+        依据用户传入的元素特征，来返回当前元素的点击状态【 可点击为True,不可点击为False 】
+        :param feature: 被判断元素的特征
+        :return: 返回一个表示当前状态的布尔值
+        """
+        ele = self.find_element( feature )
+        print( type(ele.text),'----',ele.get_attribute("enabled") )
+        if ele.get_attribute( "enabled" )== "true":
+            # 当前状态为 true 返回 True 表示当前按钮可点击
+            return True
+        else:
+            return False
+
